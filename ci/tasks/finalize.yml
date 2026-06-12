@@ -1,0 +1,14 @@
+---
+platform: linux
+
+inputs:
+- name: bumped-rust-release
+- name: semver
+
+outputs:
+- name: release-repo
+  path: release-repo
+- name: release-metadata
+
+run:
+  path: bumped-rust-release/ci/tasks/finalize.sh

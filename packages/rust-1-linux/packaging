@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${DEBUG:=}" != "" ]]; then
+  set -x
+fi
+
+tar xzf rust-*-x86_64-unknown-linux-gnu.tar.gz
+
+pushd rust-*-x86_64-unknown-linux-gnu || exit 1
+  ./install.sh \
+    --prefix="${BOSH_INSTALL_TARGET}" \
+    --without=rust-docs \
+    --disable-ldconfig
+popd
+
+mkdir "${BOSH_INSTALL_TARGET}/bosh"
+
+PACKAGE_NAME="$(basename "${BOSH_INSTALL_TARGET}")"
+export PACKAGE_NAME
+sed "s#\${PACKAGE_NAME}#${PACKAGE_NAME}#" compile.env > "${BOSH_INSTALL_TARGET}/bosh/compile.env"
+sed "s#\${PACKAGE_NAME}#${PACKAGE_NAME}#" runtime.env > "${BOSH_INSTALL_TARGET}/bosh/runtime.env"

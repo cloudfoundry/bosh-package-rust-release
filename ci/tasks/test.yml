@@ -1,0 +1,9 @@
+---
+platform: linux
+
+inputs:
+- name: rust-release
+- name: stemcell
+
+run:
+  path: rust-release/ci/tasks/test.sh

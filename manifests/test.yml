@@ -1,0 +1,32 @@
+---
+name: rust
+
+releases:
+- name: rust
+  version: latest
+
+stemcells:
+- alias: default
+  os: ((stemcell_os))
+  version: latest
+
+update:
+  canaries: 2
+  max_in_flight: 1
+  canary_watch_time: 5000-60000
+  update_watch_time: 5000-60000
+
+instance_groups:
+- name: rust-1-test
+  azs: [z1]
+  instances: 1
+  lifecycle: errand
+  jobs:
+  - name: rust-1-test
+    release: rust
+    properties: {}
+  vm_type: default
+  vm_extensions: []
+  stemcell: default
+  networks:
+  - name: default

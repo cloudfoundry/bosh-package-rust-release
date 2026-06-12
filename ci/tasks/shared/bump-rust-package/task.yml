@@ -1,0 +1,20 @@
+---
+platform: linux
+
+inputs:
+- name: rust-release
+- name: release-repo
+
+outputs:
+- name: release-repo
+  path: bumped-release-repo
+
+run:
+  path: rust-release/ci/tasks/shared/bump-rust-package/task.sh
+
+params:
+  GIT_USER_NAME: ~
+  GIT_USER_EMAIL: ~
+  PACKAGE: rust-1-linux
+  PRIVATE_YML: ~
+  RELEASE_DIR: release-repo

@@ -1,0 +1,130 @@
+---
+jobs:
+- name: bump
+  serial: true
+  plan:
+  - in_parallel:
+    - get: rust-stable
+      trigger: true
+    - get: rust-release
+    - get: stemcell-jammy
+    - get: stemcell-noble
+    - get: semver
+      params:
+        bump: minor
+    - get: bosh-integration-image
+    - get: bosh-docker-cpi-image
+  - in_parallel:
+    - load_var: jammy_version
+      file: stemcell-jammy/version
+    - load_var: noble_version
+      file: stemcell-noble/version
+    - task: bump
+      file: rust-release/ci/tasks/bump.yml
+      image: bosh-integration-image
+  - in_parallel:
+    - task: test-jammy
+      file: rust-release/ci/tasks/test.yml
+      image: bosh-docker-cpi-image
+      privileged: true
+      input_mapping:
+        rust-release: bumped-rust-release
+        stemcell: stemcell-jammy
+      params:
+        STEMCELL_OS: ubuntu-jammy
+        STEMCELL_VERSION: ((.:jammy_version))
+    - task: test-noble
+      file: rust-release/ci/tasks/test.yml
+      image: bosh-docker-cpi-image
+      privileged: true
+      input_mapping:
+        rust-release: bumped-rust-release
+        stemcell: stemcell-noble
+      params:
+        STEMCELL_OS: ubuntu-noble
+        STEMCELL_VERSION: ((.:noble_version))
+  - task: finalize
+    file: bumped-rust-release/ci/tasks/finalize.yml
+    image: bosh-integration-image
+  - in_parallel:
+    - put: semver
+      inputs: detect
+      params:
+        file: semver/version
+    - put: rust-release
+      params:
+        rebase: true
+        repository: release-repo
+        tag: release-metadata/tag-name
+
+resources:
+- name: bosh-docker-cpi-image
+  type: docker-image
+  source:
+    repository: ghcr.io/cloudfoundry/bosh/docker-cpi
+    username: ((github_read_write_packages.username))
+    password: ((github_read_write_packages.password))
+
+- name: bosh-integration-image
+  type: registry-image
+  source:
+    repository: ghcr.io/cloudfoundry/bosh/integration
+    username: ((github_read_write_packages.username))
+    password: ((github_read_write_packages.password))
+
+- name: rust-release
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh-package-rust-release.git
+    branch: main
+    private_key: ((github_deploy_key_bosh-package-rust-release.private_key))
+
+- name: stemcell-jammy
+  type: bosh-io-stemcell
+  source:
+    name: bosh-warden-boshlite-ubuntu-jammy-go_agent
+
+- name: stemcell-noble
+  type: bosh-io-stemcell
+  source:
+    name: bosh-warden-boshlite-ubuntu-noble
+
+- name: semver
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:cloudfoundry/bosh-package-rust-release.git
+    branch: semver
+    file: version
+    private_key: ((github_deploy_key_bosh-package-rust-release.private_key))
+    initial_version: 0.1.0
+
+- name: rust-stable
+  type: dynamic-metalink
+  source:
+    version: ">= 1.0.0"
+    version_check: |
+      curl -fsSL https://static.rust-lang.org/dist/channel-rust-stable.toml | \
+        awk '/^\[pkg\.rust\]/{found=1} found && /^version = /{match($0, /[0-9]+\.[0-9]+\.[0-9]+/); print substr($0, RSTART, RLENGTH); exit}'
+    metalink_get: |
+      printf '{"files":[{"name":"rust-%s-x86_64-unknown-linux-gnu.tar.gz","urls":[{"url":"https://static.rust-lang.org/dist/rust-%s-x86_64-unknown-linux-gnu.tar.gz"}]}]}' "${version}" "${version}"
+    include_files:
+    - rust-*-x86_64-unknown-linux-gnu.tar.gz
+
+resource_types:
+- name: dynamic-metalink
+  type: registry-image
+  source:
+    repository: dpb587/dynamic-metalink-resource
+
+- name: semver
+  type: registry-image
+  source:
+    repository: concourse/semver-resource
+    tag: 1.6
+
+- name: slack-notification
+  type: registry-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest

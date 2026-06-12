@@ -1,0 +1,10 @@
+---
+name: rust-1-test
+
+templates:
+  run: bin/run
+
+packages:
+- rust-1-linux
+
+properties: {}

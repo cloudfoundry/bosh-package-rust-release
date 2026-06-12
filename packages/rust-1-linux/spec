@@ -1,0 +1,7 @@
+---
+name: rust-1-linux
+
+files:
+- compile.env
+- runtime.env
+- rust-*-x86_64-unknown-linux-gnu.tar.gz
