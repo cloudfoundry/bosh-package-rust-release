@@ -1,0 +1,22 @@
+name: rust
+version: 0.5.0
+commit_hash: 6e80398
+uncommitted_changes: false
+jobs:
+- name: rust-1-test
+  version: e8455e12b6a69db59ee756c4946f4bbd4fbd8fdb9f4b0c33d14e06e65f2f9e7f
+  fingerprint: e8455e12b6a69db59ee756c4946f4bbd4fbd8fdb9f4b0c33d14e06e65f2f9e7f
+  sha1: sha256:19e8546cd242874c5c52cf070e6b050b0e154c791d0fad4bbefa7e86c0c7c9bd
+  packages:
+  - rust-1-linux
+packages:
+- name: rust-1-linux
+  version: 19ea76d24d80b3501c41595fb4a6f02438fca2aec179120b2e0b52dd53787e88
+  fingerprint: 19ea76d24d80b3501c41595fb4a6f02438fca2aec179120b2e0b52dd53787e88
+  sha1: sha256:4765b6adf4ff603f8a7f7245da17782769732164abad53afaa96c87bff8a64a0
+  dependencies: []
+license:
+  version: eefa533b44473426f0d39cb7de4a5de1342863955201ca83ddaefe4a0c96d174
+  fingerprint: eefa533b44473426f0d39cb7de4a5de1342863955201ca83ddaefe4a0c96d174
+  sha1: sha256:1317754b991038fe6b58cd8de94d824d385ad328dba147ce44ab2b24be0fa714
+no_compression: false
