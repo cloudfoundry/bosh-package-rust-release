@@ -5,9 +5,16 @@ if [[ "${DEBUG:=}" != "" ]]; then
   set -x
 fi
 
-tar xzf rust-*-x86_64-unknown-linux-gnu.tar.gz
+# Install the toolchain matching the compile VM's architecture.
+case "$(uname -m)" in
+  x86_64)        rust_arch="x86_64" ;;
+  aarch64|arm64) rust_arch="aarch64" ;;
+  *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+esac
 
-pushd rust-*-x86_64-unknown-linux-gnu || exit 1
+tar xzf rust-*-"${rust_arch}"-unknown-linux-gnu.tar.gz
+
+pushd rust-*-"${rust_arch}"-unknown-linux-gnu || exit 1
   ./install.sh \
     --prefix="${BOSH_INSTALL_TARGET}" \
     --without=rust-docs \
