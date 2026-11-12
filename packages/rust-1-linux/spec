@@ -4,4 +4,6 @@ name: rust-1-linux
 files:
 - compile.env
 - runtime.env
-- rust-*-x86_64-unknown-linux-gnu.tar.gz
+# One pattern matches the x86_64 and aarch64 tarballs, and also keeps
+# create-release working while only the x86_64 blob exists.
+- rust-*-unknown-linux-gnu.tar.gz
